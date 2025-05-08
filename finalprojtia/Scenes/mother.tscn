@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://2kuv6y5xtn36"]
+
+[ext_resource type="PackedScene" uid="uid://i0ikq3ulkjtm" path="res://Scenes/Enviroments/prototyping.tscn" id="1_k6ks7"]
+
+[node name="Mother" type="Node"]
+
+[node name="Node2D" parent="." instance=ExtResource("1_k6ks7")]
