@@ -10,42 +10,94 @@ const FALL_MULTIPLIER : float = 2.5
 const LOW_JUMP_MULTIPLIER : float = 2
 
 const MAX_DASHES : int = 1
-const DASH_FORCE : float = 1000
+const DASH_SPEED : float = 3000
+const DASH_DURATION : float = 0.08
+const DASH_COOLDOWN : float = 0.6
 ## References
-
+@onready var dash_duration_timer : Timer = $dash_duration
+@onready var dash_cooldown_timer : Timer = $dash_cd
 ## Variables
-var dashes_left : int = 0
+var direction : float = 0
+var last_dir : float = 1
+
+@onready var dashes_left : int = MAX_DASHES
+var dash_called : bool = false
+var dashing : bool = false
+
+var jump_called : bool = false
+
+var gravity_to_apply : Vector2 = Vector2.ZERO
 
 func _physics_process(delta: float) -> void:
-	# Handle gravity
+	handle_input(delta)
+	handle_movement(delta)
+	move_and_slide()
+
+func handle_input(delta: float):
+		# Handle gravity
 	if not is_on_floor():
 		if Input.is_action_pressed("Jump"):
-			velocity += get_gravity() * delta
+			gravity_to_apply = get_gravity() * delta
 		elif velocity.y > 0:
-			velocity += get_gravity() * delta * LOW_JUMP_MULTIPLIER
+			gravity_to_apply = get_gravity() * delta * LOW_JUMP_MULTIPLIER
 		else:
-			velocity += get_gravity() * delta * FALL_MULTIPLIER
+			gravity_to_apply = get_gravity() * delta * FALL_MULTIPLIER
 	# Reset dashes when touching floor
 	else:
-		dashes_left = MAX_DASHES
-
-
-	# Handle jump.
+		gravity_to_apply = Vector2.ZERO
+	
+		# Handle jump.
 	if Input.is_action_just_pressed("Jump") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
+		jump_called = true
 	
 	## Gets Horizontal input
-	var direction := Input.get_axis("GoLeft", "GoRight")
+	direction = Input.get_axis("GoLeft", "GoRight")
+	if direction != 0 and not dashing:
+		last_dir = direction
 	
-	# Handles dashes
+	# Handle dash input
 	if Input.is_action_just_pressed("Action") and dashes_left > 0:
-		velocity.x += direction * DASH_FORCE
+		dash_called = true
+
+
+func handle_movement(delta: float):
+	# Apply gravity
+	if gravity_to_apply != Vector2.ZERO:
+		velocity += gravity_to_apply
+	
+	if jump_called:
+		velocity.y = JUMP_VELOCITY
+		jump_called = false
+	
+	# Handle dash movement
+	if dash_called:
+		dashing = true
+		dash_called = false
 		dashes_left -= 1
+		
+		dash_cooldown_timer.wait_time = DASH_COOLDOWN
+		dash_cooldown_timer.start()
+		
+		dash_duration_timer.wait_time = DASH_DURATION
+		dash_duration_timer.start()
 	
 	# Handles movement logic
-	if direction:
+	if dashing:
+		velocity.x = lerpf(velocity.x, last_dir * DASH_SPEED, delta / ACCELERATION_TIME)
+	elif direction != 0:
 		velocity.x = lerpf(velocity.x, direction * SPEED, delta / ACCELERATION_TIME)
 	else:
 		velocity.x = lerpf(velocity.x, 0, delta / DEACCELERATION_TIME)
+	
 
-	move_and_slide()
+
+func _on_dash_duration_timer_timeout() -> void:
+	dashing = false
+
+func _on_dash_cd_timeout() -> void:
+	dashes_left = MAX_DASHES
+
+
+func _on_attack_area_area_entered(area: Area2D) -> void:
+	if dashing:
+		area.queue_free()
