@@ -1,21 +1,27 @@
 extends CharacterBody2D
 
 ## Constants
-const SPEED : float = 300.0
+const SPEED : float = 230.0
 const ACCELERATION_TIME : float = 0.1
 const DEACCELERATION_TIME : float = 0.05
-const JUMP_VELOCITY : float = -500.0
+const JUMP_VELOCITY : float = -350.0
 
 const FALL_MULTIPLIER : float = 2.5
 const LOW_JUMP_MULTIPLIER : float = 2
 
 const MAX_DASHES : int = 1
-const DASH_SPEED : float = 3000
-const DASH_DURATION : float = 0.08
-const DASH_COOLDOWN : float = 0.6
+const DASH_SPEED : float = 400
+const DASH_DURATION : float = 0.3
+const DASH_COOLDOWN : float = 2
+
+const BOUNCE_MULTIPLIER : float = 0.8
 ## References
 @onready var dash_duration_timer : Timer = $dash_duration
 @onready var dash_cooldown_timer : Timer = $dash_cd
+
+@onready var animated_sprite : AnimatedSprite2D = $AnimatedSprite2D
+
+@onready var attack_area : Area2D = $attack_area
 ## Variables
 var direction : float = 0
 var last_dir : float = 1
@@ -35,7 +41,7 @@ func _physics_process(delta: float) -> void:
 
 func handle_input(delta: float):
 		# Handle gravity
-	if not is_on_floor():
+	if not is_on_floor() and not dashing:
 		if Input.is_action_pressed("Jump"):
 			gravity_to_apply = get_gravity() * delta
 		elif velocity.y > 0:
@@ -54,6 +60,18 @@ func handle_input(delta: float):
 	direction = Input.get_axis("GoLeft", "GoRight")
 	if direction != 0 and not dashing:
 		last_dir = direction
+		scale.x = direction
+		if dashes_left > 0:
+			animated_sprite.play("runCharged")
+		else:
+			animated_sprite.play("runNotCharged")
+	elif not dashing:
+		if dashes_left > 0:
+			animated_sprite.play("defaultCharged")
+		else:
+			animated_sprite.play("defaultNotCharged")
+	else:
+		animated_sprite.play("dash")
 	
 	# Handle dash input
 	if Input.is_action_just_pressed("Action") and dashes_left > 0:
@@ -80,10 +98,13 @@ func handle_movement(delta: float):
 		
 		dash_duration_timer.wait_time = DASH_DURATION
 		dash_duration_timer.start()
+		
+		velocity.y = 0
 	
 	# Handles movement logic
 	if dashing:
 		velocity.x = lerpf(velocity.x, last_dir * DASH_SPEED, delta / ACCELERATION_TIME)
+		
 	elif direction != 0:
 		velocity.x = lerpf(velocity.x, direction * SPEED, delta / ACCELERATION_TIME)
 	else:
@@ -99,5 +120,14 @@ func _on_dash_cd_timeout() -> void:
 
 
 func _on_attack_area_area_entered(area: Area2D) -> void:
+	print("HIT SOMETHING")
 	if dashing:
 		area.queue_free()
+		print("HIT WHEN DASHING")
+
+
+func _on_attack_area_area_shape_entered(area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
+	print("HIT SOMETHING")
+	if dashing:
+		area.queue_free()
+		print("HIT WHEN DASHING")
