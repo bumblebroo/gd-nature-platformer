@@ -40,7 +40,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func handle_input(delta: float):
-		# Handle gravity
+	# Arrange for the correct gravity to be applied
 	if not is_on_floor() and not dashing:
 		if Input.is_action_pressed("Jump"):
 			gravity_to_apply = get_gravity() * delta
@@ -48,19 +48,23 @@ func handle_input(delta: float):
 			gravity_to_apply = get_gravity() * delta * LOW_JUMP_MULTIPLIER
 		else:
 			gravity_to_apply = get_gravity() * delta * FALL_MULTIPLIER
-	# Reset dashes when touching floor
 	else:
 		gravity_to_apply = Vector2.ZERO
 	
-		# Handle jump.
+	# Call Jump
 	if Input.is_action_just_pressed("Jump") and is_on_floor():
 		jump_called = true
 	
-	## Gets Horizontal input
+	## Gets Horizontal input along with applying the correct animations
 	direction = Input.get_axis("GoLeft", "GoRight")
 	if direction != 0 and not dashing:
 		last_dir = direction
-		scale.x = direction
+		
+		# Flip sprite to face the correct direction
+		animated_sprite.flip_h = direction == -1
+		
+		attack_area.position = Vector2(position.x + direction * 2, position.y)
+		
 		if dashes_left > 0:
 			animated_sprite.play("runCharged")
 		else:
@@ -73,7 +77,7 @@ func handle_input(delta: float):
 	else:
 		animated_sprite.play("dash")
 	
-	# Handle dash input
+	# Call the dash
 	if Input.is_action_just_pressed("Action") and dashes_left > 0:
 		dash_called = true
 
@@ -83,11 +87,12 @@ func handle_movement(delta: float):
 	if gravity_to_apply != Vector2.ZERO:
 		velocity += gravity_to_apply
 	
+	# Apply jump logic
 	if jump_called:
 		velocity.y = JUMP_VELOCITY
 		jump_called = false
 	
-	# Handle dash movement
+	# Handle dash logicad
 	if dash_called:
 		dashing = true
 		dash_called = false
@@ -118,16 +123,8 @@ func _on_dash_duration_timer_timeout() -> void:
 func _on_dash_cd_timeout() -> void:
 	dashes_left = MAX_DASHES
 
-
-func _on_attack_area_area_entered(area: Area2D) -> void:
+func _on_attack_area_body_entered(body: Node2D) -> void:
 	print("HIT SOMETHING")
 	if dashing:
-		area.queue_free()
-		print("HIT WHEN DASHING")
-
-
-func _on_attack_area_area_shape_entered(area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
-	print("HIT SOMETHING")
-	if dashing:
-		area.queue_free()
+		body.queue_free()
 		print("HIT WHEN DASHING")
