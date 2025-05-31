@@ -8,8 +8,8 @@ radius = 3.0
 height = 6.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ft8w5"]
-radius = 2.99999
-height = 8.0
+radius = 3.0
+height = 10.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_h54ih"]
 atlas = ExtResource("2_ft8w5")
@@ -133,7 +133,7 @@ position_smoothing_speed = 10.0
 [node name="dash_cd" type="Timer" parent="."]
 
 [node name="attack_area" type="Area2D" parent="."]
-position = Vector2(2, 0)
+position = Vector2(3, 0)
 collision_layer = 7
 collision_mask = 4
 

@@ -15,6 +15,7 @@ const DASH_DURATION : float = 0.3
 const DASH_COOLDOWN : float = 2
 
 const BOUNCE_MULTIPLIER : float = 0.8
+
 ## References
 @onready var dash_duration_timer : Timer = $dash_duration
 @onready var dash_cooldown_timer : Timer = $dash_cd
@@ -22,6 +23,7 @@ const BOUNCE_MULTIPLIER : float = 0.8
 @onready var animated_sprite : AnimatedSprite2D = $AnimatedSprite2D
 
 @onready var attack_area : Area2D = $attack_area
+
 ## Variables
 var direction : float = 0
 var last_dir : float = 1
@@ -63,7 +65,7 @@ func handle_input(delta: float):
 		# Flip sprite to face the correct direction
 		animated_sprite.flip_h = direction == -1
 		
-		attack_area.position = Vector2(position.x + direction * 2, position.y)
+		attack_area.position = Vector2(direction * 3, attack_area.position.y)
 		
 		if dashes_left > 0:
 			animated_sprite.play("runCharged")
@@ -124,7 +126,7 @@ func _on_dash_cd_timeout() -> void:
 	dashes_left = MAX_DASHES
 
 func _on_attack_area_body_entered(body: Node2D) -> void:
-	print("HIT SOMETHING")
 	if dashing:
-		body.queue_free()
-		print("HIT WHEN DASHING")
+		#body.queue_free()
+		velocity.x *= -2
+		dashing = false
