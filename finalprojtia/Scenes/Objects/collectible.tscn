@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://bjm46tgv5osdi"]
+
+[ext_resource type="Script" uid="uid://cnn3ixk7n2j0c" path="res://Scripts/Objects/collectible.gd" id="1_uflmy"]
+[ext_resource type="Texture2D" uid="uid://u6peiu2rttej" path="res://Sprites/Tileset.png" id="2_i8k6r"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_46qp2"]
+radius = 2.0
+height = 6.0
+
+[node name="Collectible" type="Node2D"]
+script = ExtResource("1_uflmy")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_i8k6r")
+region_enabled = true
+region_rect = Rect2(8, 96, 8, 8)
+region_filter_clip_enabled = true
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CapsuleShape2D_46qp2")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]

@@ -13,6 +13,7 @@ const MAX_DASHES : int = 1
 const DASH_SPEED : float = 400
 const DASH_DURATION : float = 0.3
 const DASH_COOLDOWN : float = 2
+const DASH_DAMAGE : int = 1
 
 const BOUNCE_MULTIPLIER : float = 0.8
 
@@ -27,6 +28,8 @@ const BOUNCE_MULTIPLIER : float = 0.8
 ## Variables
 var direction : float = 0
 var last_dir : float = 1
+
+var current_coins : int = 0
 
 @onready var dashes_left : int = MAX_DASHES
 var dash_called : bool = false
@@ -116,7 +119,10 @@ func handle_movement(delta: float):
 		velocity.x = lerpf(velocity.x, direction * SPEED, delta / ACCELERATION_TIME)
 	else:
 		velocity.x = lerpf(velocity.x, 0, delta / DEACCELERATION_TIME)
-	
+
+func pick_up_coin():
+	current_coins += 1
+	print("picked up coin")
 
 
 func _on_dash_duration_timer_timeout() -> void:
@@ -127,6 +133,10 @@ func _on_dash_cd_timeout() -> void:
 
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if dashing:
-		#body.queue_free()
+		if body.owner.has_method("take_damage"):
+			body.owner.take_damage(DASH_DAMAGE)
+			print("did damage")
+		if body.owner.has_method("press_button"):
+			body.owner.press_button()
 		velocity.x *= -2
 		dashing = false

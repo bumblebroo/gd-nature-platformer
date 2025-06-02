@@ -1,14 +1,16 @@
 [gd_scene load_steps=7 format=3 uid="uid://csofctswhnir5"]
 
-[ext_resource type="Script" uid="uid://moujuyi0u3w2" path="res://Scenes/Objects/button.gd" id="1_3ug5e"]
-[ext_resource type="Texture2D" uid="uid://dv0imvmkhrkbk" path="res://Sprites/Tileset.png" id="2_f6l7x"]
+[ext_resource type="Script" uid="uid://moujuyi0u3w2" path="res://Scripts/Objects/button.gd" id="1_3ug5e"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_2a1wf"]
+load_path = "res://.godot/imported/Tileset.png-1a414b7107dec576154e767e32be6ae4.ctex"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0k4t2"]
-atlas = ExtResource("2_f6l7x")
+atlas = SubResource("CompressedTexture2D_2a1wf")
 region = Rect2(24, 96, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pd7ql"]
-atlas = ExtResource("2_f6l7x")
+atlas = SubResource("CompressedTexture2D_2a1wf")
 region = Rect2(32, 96, 8, 8)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_p1fm3"]
@@ -36,6 +38,8 @@ size = Vector2(8, 6)
 [node name="Button" type="Node2D"]
 script = ExtResource("1_3ug5e")
 
+[node name="Press_timer" type="Timer" parent="."]
+
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_p1fm3")
 
@@ -46,4 +50,4 @@ collision_layer = 8
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_vy885")
 
-[node name="Timer" type="Timer" parent="."]
+[connection signal="timeout" from="Press_timer" to="." method="_on_press_timer_timeout"]
