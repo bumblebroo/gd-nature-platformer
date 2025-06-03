@@ -1,10 +1,12 @@
 [gd_scene load_steps=4 format=3 uid="uid://dp3my8mlydj8b"]
 
 [ext_resource type="Script" uid="uid://bll0t6oxd4thm" path="res://Scripts/Objects/destructible.gd" id="1_hf5yo"]
-[ext_resource type="Texture2D" uid="uid://u6peiu2rttej" path="res://Sprites/Tileset.png" id="2_hf5yo"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3dahb"]
 size = Vector2(8, 8)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_2a1wf"]
+load_path = "res://.godot/imported/Tileset.png-1a414b7107dec576154e767e32be6ae4.ctex"
 
 [node name="Destructible" type="Node2D"]
 script = ExtResource("1_hf5yo")
@@ -18,6 +20,6 @@ collision_layer = 4
 shape = SubResource("RectangleShape2D_3dahb")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_hf5yo")
+texture = SubResource("CompressedTexture2D_2a1wf")
 region_enabled = true
 region_rect = Rect2(0, 96, 8, 8)

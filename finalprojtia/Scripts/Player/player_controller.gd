@@ -1,4 +1,5 @@
 extends CharacterBody2D
+class_name Player
 
 ## Constants
 const SPEED : float = 150.0
@@ -11,7 +12,7 @@ const LOW_JUMP_MULTIPLIER : float = 2
 const COYOTE_TIME : float = 0.2
 
 const MAX_DASHES : int = 1
-const DASH_SPEED : float = 300
+const DASH_SPEED : float = 250
 const DASH_DURATION : float = 0.2
 const DASH_COOLDOWN : float = 1.1
 const DASH_DAMAGE : int = 1
@@ -66,7 +67,6 @@ func handle_input(delta: float):
 	elif coyote_time_timer.time_left == 0 and can_jump == true:
 		coyote_time_timer.wait_time = COYOTE_TIME
 		coyote_time_timer.start()
-	
 	
 	# Call Jump
 	if Input.is_action_just_pressed("Jump") and can_jump:
@@ -126,7 +126,8 @@ func handle_movement(delta: float):
 	
 	# Handles movement logic
 	if dashing:
-		velocity.x = lerpf(velocity.x, last_dir * DASH_SPEED, delta / ACCELERATION_TIME)
+		velocity.x = last_dir * DASH_SPEED
+		attack_area.monitoring = true
 		
 	elif direction != 0:
 		velocity.x = lerpf(velocity.x, direction * SPEED, delta / ACCELERATION_TIME)
@@ -137,13 +138,20 @@ func pick_up_coin():
 	current_coins += 1
 	print("picked up coin")
 
+func player_take_damage():
+	if not dashing:
+		get_tree().reload_current_scene()
 
+# Stops dashing once duration is finished
 func _on_dash_duration_timer_timeout() -> void:
 	dashing = false
+	attack_area.monitoring = false
 
+# Resets dash after timer is done
 func _on_dash_cd_timeout() -> void:
 	dashes_left = MAX_DASHES
 
+## Handling inputs from the attack_area
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if dashing:
 		if body.owner.has_method("take_damage"):
@@ -153,6 +161,7 @@ func _on_attack_area_body_entered(body: Node2D) -> void:
 			body.owner.press_button()
 		velocity.x *= -1.6
 		dashing = false
+		attack_area.monitoring = false
 
 
 func _on_coyote_time_timeout() -> void:

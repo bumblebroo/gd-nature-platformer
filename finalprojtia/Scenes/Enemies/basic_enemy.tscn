@@ -1,0 +1,49 @@
+[gd_scene load_steps=8 format=3 uid="uid://bmjh6w5mbn1g6"]
+
+[ext_resource type="Script" uid="uid://bj07j02wsvvfc" path="res://Scripts/Enemy/basic_enemy.gd" id="1_jln43"]
+[ext_resource type="Texture2D" uid="uid://lprvo5hifhcu" path="res://Sprites/baseEnemy-Sheet-export.png" id="1_px3k0"]
+[ext_resource type="PackedScene" uid="uid://bmdu70hw1k12j" path="res://Scenes/Objects/hurt_element.tscn" id="3_wm5yt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jln43"]
+atlas = ExtResource("1_px3k0")
+region = Rect2(0, 0, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wm5yt"]
+atlas = ExtResource("1_px3k0")
+region = Rect2(8, 0, 8, 8)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_00oey"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jln43")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wm5yt")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_264qk"]
+radius = 3.0
+
+[node name="BasicEnemy" type="Node2D"]
+script = ExtResource("1_jln43")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_00oey")
+autoplay = "default"
+frame_progress = 0.410178
+
+[node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
+position = Vector2(0, 1.06)
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
+shape = SubResource("CircleShape2D_264qk")
+
+[node name="HurtElement" parent="." instance=ExtResource("3_wm5yt")]
+position = Vector2(0, -0.48)
+scale = Vector2(0.455, 0.455)

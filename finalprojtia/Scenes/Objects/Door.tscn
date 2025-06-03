@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://bascabr3napo2"]
+
+[ext_resource type="Texture2D" uid="uid://x8i1bn5m3b7q" path="res://Sprites/door.png" id="1_lgil6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_eaxfl"]
+size = Vector2(6, 24)
+
+[node name="Door" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_lgil6")
+
+[node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
+shape = SubResource("RectangleShape2D_eaxfl")
