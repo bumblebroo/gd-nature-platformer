@@ -1,25 +1,27 @@
 extends CharacterBody2D
 
 ## Constants
-const SPEED : float = 230.0
+const SPEED : float = 150.0
 const ACCELERATION_TIME : float = 0.1
 const DEACCELERATION_TIME : float = 0.05
-const JUMP_VELOCITY : float = -350.0
+const JUMP_VELOCITY : float = -270.0
 
 const FALL_MULTIPLIER : float = 2.5
 const LOW_JUMP_MULTIPLIER : float = 2
+const COYOTE_TIME : float = 0.2
 
 const MAX_DASHES : int = 1
-const DASH_SPEED : float = 400
-const DASH_DURATION : float = 0.3
-const DASH_COOLDOWN : float = 2
+const DASH_SPEED : float = 300
+const DASH_DURATION : float = 0.2
+const DASH_COOLDOWN : float = 1.1
 const DASH_DAMAGE : int = 1
 
 const BOUNCE_MULTIPLIER : float = 0.8
 
 ## References
-@onready var dash_duration_timer : Timer = $dash_duration
-@onready var dash_cooldown_timer : Timer = $dash_cd
+@onready var dash_duration_timer : Timer = $Timers/dash_duration
+@onready var dash_cooldown_timer : Timer = $Timers/dash_cd
+@onready var coyote_time_timer : Timer = $Timers/coyote_time
 
 @onready var animated_sprite : AnimatedSprite2D = $AnimatedSprite2D
 
@@ -35,6 +37,7 @@ var current_coins : int = 0
 var dash_called : bool = false
 var dashing : bool = false
 
+var can_jump : bool = false
 var jump_called : bool = false
 
 var gravity_to_apply : Vector2 = Vector2.ZERO
@@ -56,9 +59,19 @@ func handle_input(delta: float):
 	else:
 		gravity_to_apply = Vector2.ZERO
 	
+	# Check if can jump
+	if is_on_floor():
+		can_jump = true
+	# Gives additional time for the player to jump after leaving a platform
+	elif coyote_time_timer.time_left == 0 and can_jump == true:
+		coyote_time_timer.wait_time = COYOTE_TIME
+		coyote_time_timer.start()
+	
+	
 	# Call Jump
-	if Input.is_action_just_pressed("Jump") and is_on_floor():
+	if Input.is_action_just_pressed("Jump") and can_jump:
 		jump_called = true
+		can_jump = false
 	
 	## Gets Horizontal input along with applying the correct animations
 	direction = Input.get_axis("GoLeft", "GoRight")
@@ -138,5 +151,9 @@ func _on_attack_area_body_entered(body: Node2D) -> void:
 			print("did damage")
 		if body.owner.has_method("press_button"):
 			body.owner.press_button()
-		velocity.x *= -2
+		velocity.x *= -1.6
 		dashing = false
+
+
+func _on_coyote_time_timeout() -> void:
+	can_jump = false
